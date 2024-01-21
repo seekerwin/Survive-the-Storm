@@ -1,7 +1,7 @@
 var lastTimestamp = 0;
 var spieler = document.querySelector(".player"),
     spielfeld = document.querySelector(".playground");
-(spieler.style.left = "0px"), (spieler.style.top = "0px");
+(spieler.style.left = "300px"), (spieler.style.top = "300px");
 var start_spawn = !1,
     timer_enemy = new Timer(30),
     highScore = localStorage.getItem("highScore") || 0,
