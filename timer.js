@@ -1,0 +1,1 @@
+class Timer{constructor(t){this.interval=t,this.value=0}ready(){return this.value+=1,this.value>=this.interval&&(this.value=0,!0)}}

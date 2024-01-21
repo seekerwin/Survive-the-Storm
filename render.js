@@ -1,0 +1,1 @@
+function render(e,t){fetch(t).then((e=>e.text())).then((t=>{const n=Mustache.render(t,e);document.body.insertAdjacentHTML("beforeend",n)}))}function renderText(e,t,n){fetch(t).then((e=>e.text())).then((t=>{const r=Mustache.render(t,e);n(r)}))}function renderTo(e,t,n){fetch(t).then((e=>e.text())).then((t=>{const r=Mustache.render(t,e);document.querySelector(n).innerHTML=r}))}

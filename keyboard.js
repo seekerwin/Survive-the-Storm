@@ -1,0 +1,1 @@
+function keyboard(e){return Keys[e]}function keyboardOnce(e){return!!Keys[e]&&(Keys[e]=!1,!0)}var Keys={};function bbzGameKeydown(e){Keys[e.keyCode]=!0}function bbzGameKeyup(e){Keys[e.keyCode]=!1}document.addEventListener("keydown",bbzGameKeydown),document.addEventListener("keyup",bbzGameKeyup);

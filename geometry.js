@@ -1,0 +1,1 @@
+function angleRad(a,n,t,r){var e=r-n,u=t-a,i=Math.atan2(u,e);return i=normalizeRad(i-=Math.PI/2)}function angleDeg(a,n,t,r){var e=angleRad(a,n,t,r);return e*=180/Math.PI}function normalizeRad(a){return(a+2*Math.PI)%(2*Math.PI)}function distance(a,n,t,r){const e=t-a,u=r-n;return Math.sqrt(e*e+u*u)}
