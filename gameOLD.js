@@ -1,4 +1,5 @@
 var lastTimestamp = 0;
+var enemySpawnTime = enemySpawnInterval;
 var spieler = document.querySelector(".player"),
     spielfeld = document.querySelector(".playground");
 (spieler.style.left = "300px"), (spieler.style.top = "300px");
@@ -48,16 +49,22 @@ var punkte_safe = 15,
     canGo = !0,
     delay = 300;
 function loop(timestamp) {
-    var deltaTime = timestamp - lastTimestamp;
+    var deltaTime = (timestamp - lastTimestamp) / 10; // Convert milliseconds to seconds
+    lastTimestamp = timestamp;
+    enemySpawnTime -= deltaTime;
     punkteanzeige.innerHTML = "Punkte : " + punkte;
     var e = document.querySelectorAll(".enemy"),
         t = document.querySelectorAll(".enemy");
-    for (var l of t) {
-        var a = parseInt(l.style.left),
-            s = parseInt(l.style.top),
-            r = angle(a, s, parseInt(spieler.style.left), parseInt(spieler.style.top));
-        (a += 1.5 * Math.cos((r * Math.PI) / 180)), (s += 1.5 * Math.sin((r * Math.PI) / 180)), (l.style.left = a + "px"), (l.style.top = s + "px"), (l.style.transform = "rotate(" + r + "deg)");
-    }
+        for (var l of t) {
+            var a = parseInt(l.style.left),
+                s = parseInt(l.style.top),
+                r = angle(a, s, parseInt(spieler.style.left), parseInt(spieler.style.top));
+            a += 1.5 * Math.cos((r * Math.PI) / 180) * deltaTime;
+            s += 1.5 * Math.sin((r * Math.PI) / 180) * deltaTime;
+            l.style.left = a + "px";
+            l.style.top = s + "px";
+            l.style.transform = "rotate(" + r + "deg)";
+        }
     if (
         (lives > 6 && (lives = 6),
         6 == lives && (heart_6.style.filter = "grayscale(0%)"),
@@ -81,14 +88,13 @@ function loop(timestamp) {
     punkte > highScore && ((highScore = punkte), localStorage.setItem("highScore", highScore)),
         (document.getElementById("highScore").innerHTML = "High Score: " + highScore),
         lives < 6 && punkte == punkte_safe && ((lives += 1), (punkte_safe += 30)),
-        keyboard(39) && parseInt(spieler.style.left) < spielfeld.clientWidth - spieler.clientWidth && ((spieler.style.left = parseInt(spieler.style.left) + 6 + "px"), (spieler.style.transform = "scaleX(-1)"), walkSound.play()),
-        keyboard(37) && parseInt(spieler.style.left) > 0 && ((spieler.style.left = parseInt(spieler.style.left) - 6 + "px"), (spieler.style.transform = "scaleX(1)"), walkSound.play()),
-        keyboard(40) && parseInt(spieler.style.top) < spielfeld.clientHeight - spieler.clientWidth && ((spieler.style.top = parseInt(spieler.style.top) + 6 + "px"), walkSound.play()),
-        keyboard(38) && parseInt(spieler.style.top) > 0 && ((spieler.style.top = parseInt(spieler.style.top) - 6 + "px"), walkSound.play()),
-        keyboard(68) && parseInt(spieler.style.left) < spielfeld.clientWidth - spieler.clientWidth && ((spieler.style.left = parseInt(spieler.style.left) + 6 + "px"), (spieler.style.transform = "scaleX(-1)"), walkSound.play()),
-        keyboard(65) && parseInt(spieler.style.left) > 0 && ((spieler.style.left = parseInt(spieler.style.left) - 6 + "px"), (spieler.style.transform = "scaleX(1)"), walkSound.play()),
-        keyboard(83) && parseInt(spieler.style.top) < spielfeld.clientHeight - spieler.clientWidth && ((spieler.style.top = parseInt(spieler.style.top) + 6 + "px"), walkSound.play()),
-        keyboard(87) && parseInt(spieler.style.top) > 0 && ((spieler.style.top = parseInt(spieler.style.top) - 6 + "px"), walkSound.play()),
+        keyboard(39) && parseInt(spieler.style.left) < spielfeld.clientWidth - spieler.clientWidth && ((spieler.style.left = parseInt(spieler.style.left) + 6 * deltaTime + "px"), (spieler.style.transform = "scaleX(-1)"), walkSound.play()),       keyboard(37) && parseInt(spieler.style.left) > 0 && ((spieler.style.left = parseInt(spieler.style.left) - 6 + "px"), (spieler.style.transform = "scaleX(1)"), walkSound.play()),
+        keyboard(40) && parseInt(spieler.style.top) < spielfeld.clientHeight - spieler.clientWidth && ((spieler.style.top = parseInt(spieler.style.top) + 6 * deltaTime + "px"), walkSound.play()),
+        keyboard(38) && parseInt(spieler.style.top) > 0 && ((spieler.style.top = parseInt(spieler.style.top) - 6 * deltaTime + "px"), walkSound.play()),
+        keyboard(68) && parseInt(spieler.style.left) < spielfeld.clientWidth - spieler.clientWidth && ((spieler.style.left = parseInt(spieler.style.left) + 6 * deltaTime + "px"), (spieler.style.transform = "scaleX(-1)"), walkSound.play()),
+        keyboard(65) && parseInt(spieler.style.left) > 0 && ((spieler.style.left = parseInt(spieler.style.left) - 6 * deltaTime + "px"), (spieler.style.transform = "scaleX(1)"), walkSound.play()),
+        keyboard(83) && parseInt(spieler.style.top) < spielfeld.clientHeight - spieler.clientWidth && ((spieler.style.top = parseInt(spieler.style.top) + 6 * deltaTime + "px"), walkSound.play()),
+        keyboard(87) && parseInt(spieler.style.top) > 0 && ((spieler.style.top = parseInt(spieler.style.top) - 6 * deltaTime + "px"), walkSound.play()),
         timer_enemy.ready() &&
             1 == start_spawn &&
             (spawn_enemies(),
@@ -113,11 +119,13 @@ function loop(timestamp) {
             }
         })();
     var i = document.querySelectorAll(".shot");
+    var shotSpeed = 10;
     for (var o of i) {
         var y = parseFloat(o.style.left),
             d = parseFloat(o.style.top),
             u = o.getAttribute("data-angle");
-        (o.style.left = 12 * Math.sin(u) + y + "px"), (o.style.top = 12 * Math.cos(u) + d + "px");
+        (o.style.left = shotSpeed * Math.sin(u) * deltaTime + y + "px"), 
+        (o.style.top = shotSpeed * Math.cos(u) * deltaTime + d + "px");
         var h = allCollisions(o, e);
         for (var p of h) {
             enemySound.play();
