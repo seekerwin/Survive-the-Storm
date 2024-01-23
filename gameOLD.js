@@ -1,18 +1,17 @@
 var lastTimestamp = 0;
-var enemySpawnTime = enemySpawnInterval;
+var initialEnemySpawnInterval = 50,
+    enemySpawnInterval = initialEnemySpawnInterval,
+    enemySpawnTime = enemySpawnInterval;
 var spieler = document.querySelector(".player"),
     spielfeld = document.querySelector(".playground");
 (spieler.style.left = "300px"), (spieler.style.top = "300px");
 var start_spawn = !1,
     timer_enemy = new Timer(30),
     highScore = localStorage.getItem("highScore") || 0,
-    initialEnemySpawnInterval = 30,
-    enemySpawnInterval = initialEnemySpawnInterval,
-    enemySpawnThreshold = 300,
-    enemySpawnThreshold2 = 1e3,
-    enemySpawnThreshold3 = 3e3,
-    enemySpawnReduction = 10,
-    
+    enemySpawnThreshold = 100,
+    enemySpawnThreshold2 = 500,
+    enemySpawnThreshold3 = 1000,
+    enemySpawnReduction = 10;
     healthbar = document.getElementById("healthbar"),
     lives = 6,
     heart_1 = document.getElementById("heart_1"),
@@ -25,7 +24,6 @@ var start_spawn = !1,
     hurtSound = new Audio("sound/hurt.ogg"),
     shotSound = new Audio("sound/shot.wav"),
     walkSound = new Audio("sound/walk.wav"),
-    dangerSound = new Audio("sound/danger.wav"),
     laugtherSound = new Audio("sound/laughter.mp3"),
     enemySound = new Audio("sound/enemy.wav");
 function angle(e, t, l, a) {
@@ -49,9 +47,11 @@ var punkte_safe = 15,
     canGo = !0,
     delay = 300;
 function loop(timestamp) {
-    var deltaTime = (timestamp - lastTimestamp) / 10; // Convert milliseconds to seconds
+    var deltaTime = (timestamp - lastTimestamp) / 20; // Convert milliseconds to seconds
     lastTimestamp = timestamp;
+    
     enemySpawnTime -= deltaTime;
+
     punkteanzeige.innerHTML = "Punkte : " + punkte;
     var e = document.querySelectorAll(".enemy"),
         t = document.querySelectorAll(".enemy");
@@ -94,14 +94,29 @@ function loop(timestamp) {
         keyboard(68) && parseInt(spieler.style.left) < spielfeld.clientWidth - spieler.clientWidth && ((spieler.style.left = parseInt(spieler.style.left) + 6 * deltaTime + "px"), (spieler.style.transform = "scaleX(-1)"), walkSound.play()),
         keyboard(65) && parseInt(spieler.style.left) > 0 && ((spieler.style.left = parseInt(spieler.style.left) - 6 * deltaTime + "px"), (spieler.style.transform = "scaleX(1)"), walkSound.play()),
         keyboard(83) && parseInt(spieler.style.top) < spielfeld.clientHeight - spieler.clientWidth && ((spieler.style.top = parseInt(spieler.style.top) + 6 * deltaTime + "px"), walkSound.play()),
-        keyboard(87) && parseInt(spieler.style.top) > 0 && ((spieler.style.top = parseInt(spieler.style.top) - 6 * deltaTime + "px"), walkSound.play()),
-        timer_enemy.ready() &&
-            1 == start_spawn &&
-            (spawn_enemies(),
-            punkte >= enemySpawnThreshold && (enemySpawnInterval -= enemySpawnReduction) < 8 && (enemySpawnInterval = 8),
-            punkte >= enemySpawnThreshold2 && (enemySpawnInterval -= enemySpawnReduction) < 1.5 && (enemySpawnInterval = 1.5),
-            punkte >= enemySpawnThreshold3 && (enemySpawnInterval -= enemySpawnReduction) < 0.2 && (enemySpawnInterval = 0.2),
-            (timer_enemy = new Timer(enemySpawnInterval)));
+        keyboard(87) && parseInt(spieler.style.top) > 0 && ((spieler.style.top = parseInt(spieler.style.top) - 6 * deltaTime + "px"), walkSound.play());
+        
+        if (enemySpawnTime <= 0 && start_spawn) {
+            spawn_enemies();
+            // Adjust the spawn interval based on the score
+            if (punkte >= enemySpawnThreshold && enemySpawnInterval > 20) {
+                enemySpawnInterval -= enemySpawnReduction * deltaTime;
+                if (enemySpawnInterval < 20) {
+                    enemySpawnInterval = 20;
+                }
+            } else if (punkte >= enemySpawnThreshold2 && enemySpawnInterval > 8) {
+                enemySpawnInterval -= enemySpawnReduction * deltaTime;
+                if (enemySpawnInterval < 8) {
+                    enemySpawnInterval = 8;
+                }
+            } else if (punkte >= enemySpawnThreshold3 && enemySpawnInterval > 3) {
+                enemySpawnInterval -= enemySpawnReduction * deltaTime;
+                if (enemySpawnInterval < 3) {
+                    enemySpawnInterval = 3;
+                }
+            }
+            enemySpawnTime = enemySpawnInterval; // Reset the spawn timer
+        }
     mouseClick() &&
         (function () {
             if (canGo) {
@@ -159,6 +174,7 @@ function spawn_enemies() {
     } while (calculateDistance(spieler, e) < 200);
     var l = angle(parseInt(e.style.left), parseInt(e.style.top), parseInt(spieler.style.left), parseInt(spieler.style.top));
     e.setAttribute("data-angle", ((180 - l) * Math.PI) / 180);
+    console.log("Spawned enemy at " + e.style.left + ", " + e.style.top);
 }
 function calculateDistance(e, t) {
     var l = parseInt(e.style.left),
