@@ -174,7 +174,6 @@ function spawn_enemies() {
     } while (calculateDistance(spieler, e) < 200);
     var l = angle(parseInt(e.style.left), parseInt(e.style.top), parseInt(spieler.style.left), parseInt(spieler.style.top));
     e.setAttribute("data-angle", ((180 - l) * Math.PI) / 180);
-    console.log("Spawned enemy at " + e.style.left + ", " + e.style.top);
 }
 function calculateDistance(e, t) {
     var l = parseInt(e.style.left),
